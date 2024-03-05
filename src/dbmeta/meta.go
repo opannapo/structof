@@ -381,7 +381,7 @@ func (c *Config) GenerateFieldsTypes(dbMeta DbTableMeta) ([]*FieldInfo, error) {
 			field = fmt.Sprintf("%s %s", fieldName, valueType)
 		}
 
-		field = fmt.Sprintf("//%s\n    %s", col.String(), field)
+		field = fmt.Sprintf("%s //%s", field, col.String())
 		if col.Comment() != "" {
 			field = fmt.Sprintf("%s // %s", field, col.Comment())
 		}

@@ -526,8 +526,8 @@ func generate(conf *dbmeta.Config) error {
 	}
 	var ModelTmpl *dbmeta.GenTemplate
 	//var ModelBaseTmpl *dbmeta.GenTemplate
-	var ControllerTmpl *dbmeta.GenTemplate
-	var DaoTmpl *dbmeta.GenTemplate
+	//var ControllerTmpl *dbmeta.GenTemplate
+	//var DaoTmpl *dbmeta.GenTemplate
 
 	//var DaoInitTmpl *dbmeta.GenTemplate
 	//var GoModuleTmpl *dbmeta.GenTemplate
@@ -559,47 +559,9 @@ func generate(conf *dbmeta.Config) error {
 			fmt.Print(au.Red(fmt.Sprintf("Error writing file: %v\n", err)))
 			os.Exit(1)
 		}
-
-		if *restAPIGenerate {
-			restFile := filepath.Join(apiDir, CreateGoSrcFileName(tableName))
-			err = conf.WriteTemplate(ControllerTmpl, modelInfo, restFile)
-			if err != nil {
-				fmt.Print(au.Red(fmt.Sprintf("Error writing file: %v\n", err)))
-				os.Exit(1)
-			}
-
-		}
-
-		if *daoGenerate {
-			// write dao
-			outputFile := filepath.Join(daoDir, CreateGoSrcFileName(tableName))
-			err = conf.WriteTemplate(DaoTmpl, modelInfo, outputFile)
-			if err != nil {
-				fmt.Print(au.Red(fmt.Sprintf("Error writing file: %v\n", err)))
-				os.Exit(1)
-			}
-		}
 	}
 
 	data := map[string]interface{}{}
-
-	if *restAPIGenerate {
-		if err = generateRestBaseFiles(conf, apiDir); err != nil {
-			return err
-		}
-	}
-
-	if *makefileGenerate {
-		if err = generateMakefile(conf); err != nil {
-			return err
-		}
-	}
-
-	if *addProtobufAnnotation {
-		if err = generateProtobufDefinitionFile(conf, data); err != nil {
-			return err
-		}
-	}
 
 	data = map[string]interface{}{
 		"deps":        "go list -f '{{ join .Deps  \"\\n\"}}' .",
@@ -611,22 +573,6 @@ func generate(conf *dbmeta.Config) error {
 		if err = generateProjectFiles(conf, data); err != nil {
 			return err
 		}
-	}
-
-	if *serverGenerate {
-		if err = generateServerCode(conf); err != nil {
-			return err
-		}
-	}
-
-	if *copyTemplates {
-		if err = copyTemplatesToTarget(); err != nil {
-			return err
-		}
-	}
-
-	if *runGoFmt {
-		GoFmt(conf.OutDir)
 	}
 
 	return nil

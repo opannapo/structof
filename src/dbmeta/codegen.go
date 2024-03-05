@@ -123,7 +123,7 @@ func (c *Config) GetTemplate(genTemplate *GenTemplate) (*template.Template, erro
 		"touch":                      c.Touch,
 		"pwd":                        Pwd,
 		"config":                     c.DisplayConfig,
-		"insertFragment":             c.insertFragment,
+		//"insertFragment":             c.insertFragment,
 	}
 
 	baseName := filepath.Base(genTemplate.Name)
@@ -463,7 +463,7 @@ func (c *Config) GenerateTableFile(tableName, templateFilename, outputDirectory,
 	}
 
 	if len(tableInfo.Fields) == 0 {
-		buf.WriteString(fmt.Sprintf("able: %s - No Fields Available\n", tableName))
+		buf.WriteString(fmt.Sprintf("Table: %s - No Fields Available\n", tableName))
 		return buf.String()
 	}
 
@@ -534,8 +534,6 @@ func (c *Config) CreateContextForTableFile(tableInfo *ModelInfo) map[string]inte
 
 // WriteTemplate write a template out
 func (c *Config) WriteTemplate(genTemplate *GenTemplate, data map[string]interface{}, outputFile string) error {
-	//fmt.Printf("WriteTemplate %s\n", outputFile)
-
 	if !c.Overwrite && Exists(outputFile) {
 		fmt.Printf("not overwriting %s\n", outputFile)
 		return nil
