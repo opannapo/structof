@@ -47,6 +47,9 @@ var (
 
 	verbose = goopt.Flag([]string{"-v", "--verbose"}, []string{}, "Enable verbose output", "")
 
+	nameWithGen         = goopt.Flag([]string{"--name_with_gen"}, []string{}, "Generate name with .gen format", "")
+	noCommentColumnInfo = goopt.Flag([]string{"--no_comment_column_info"}, []string{}, "No comment column info om the struct model", "")
+
 	nameTest = goopt.String([]string{"--name_test"}, "", "perform name test using the --model_naming or --file_naming options")
 
 	baseTemplates *packr.Box
@@ -227,6 +230,8 @@ func initialize(conf *dbmeta.Config) {
 	conf.JSONNameFormat = *jsonNameFormat
 	conf.ProtobufNameFormat = *protoNameFormat
 	conf.Verbose = *verbose
+	conf.NameWithGen = *nameWithGen
+	conf.NoCommentColumnInfo = *noCommentColumnInfo
 	conf.OutDir = *outDir
 	conf.Overwrite = *overwrite
 
@@ -300,7 +305,7 @@ func generate(conf *dbmeta.Config) error {
 
 		modelInfo := conf.CreateContextForTableFile(tableInfo)
 
-		modelFile := filepath.Join(modelDir, CreateGoSrcFileName(tableName))
+		modelFile := filepath.Join(modelDir, CreateGoSrcFileName(conf, tableName))
 		err = conf.WriteTemplate(ModelTmpl, modelInfo, modelFile)
 		if err != nil {
 			fmt.Print(au.Red(fmt.Sprintf("Error writing file: %v\n", err)))
@@ -312,13 +317,17 @@ func generate(conf *dbmeta.Config) error {
 }
 
 // CreateGoSrcFileName ensures name doesnt clash with go naming conventions like _test.go
-func CreateGoSrcFileName(tableName string) string {
+func CreateGoSrcFileName(conf *dbmeta.Config, tableName string) string {
 	name := dbmeta.Replace(*fileNamingTemplate, tableName)
 	// name := inflection.Singular(tableName)
 
 	if strings.HasSuffix(name, "_test") {
 		name = name[0 : len(name)-5]
 		name = name + "_tst"
+	}
+
+	if conf.NameWithGen {
+		return name + ".gen.go"
 	}
 	return name + ".go"
 }
