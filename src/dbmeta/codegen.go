@@ -897,6 +897,8 @@ type Config struct {
 	ServerScheme          string
 	ServerListen          string
 	Verbose               bool
+	NameWithGen           bool
+	NoCommentColumnInfo   bool
 	OutDir                string
 	Overwrite             bool
 	LineEndingCRLF        bool

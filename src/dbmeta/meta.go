@@ -320,7 +320,7 @@ func LoadMeta(sqlType string, db *sql.DB, sqlDatabase, tableName string) (DbTabl
 }
 
 // GenerateFieldsTypes FieldInfo slice from DbTableMeta
-func (c *Config) GenerateFieldsTypes(dbMeta DbTableMeta) ([]*FieldInfo, error) {
+func (c *Config) GenerateFieldsTypes(conf *Config, dbMeta DbTableMeta) ([]*FieldInfo, error) {
 
 	var fields []*FieldInfo
 	field := ""
@@ -381,9 +381,12 @@ func (c *Config) GenerateFieldsTypes(dbMeta DbTableMeta) ([]*FieldInfo, error) {
 			field = fmt.Sprintf("%s %s", fieldName, valueType)
 		}
 
-		field = fmt.Sprintf("%s //%s", field, col.String())
-		if col.Comment() != "" {
-			field = fmt.Sprintf("%s // %s", field, col.Comment())
+		//add comment column info
+		if !conf.NoCommentColumnInfo {
+			field = fmt.Sprintf("%s //%s ->", field, col.String())
+			if col.Comment() != "" {
+				field = fmt.Sprintf("%s // %s", field, col.Comment())
+			}
 		}
 
 		sqlMapping, _ := SQLTypeToMapping(strings.ToLower(col.DatabaseTypeName()))
@@ -740,7 +743,7 @@ func GenerateModelInfo(tables map[string]*ModelInfo, dbMeta DbTableMeta,
 	structName := Replace(conf.ModelNamingTemplate, tableName)
 	structName = CheckForDupeTable(tables, structName)
 
-	fields, err := conf.GenerateFieldsTypes(dbMeta)
+	fields, err := conf.GenerateFieldsTypes(conf, dbMeta)
 	if err != nil {
 		return nil, err
 	}
